@@ -38,7 +38,7 @@ function get_citation_shortcode($atts)
 add_shortcode('citation', 'get_citation_shortcode');
 
 
-
+ 
 /**
  * Cron Jobs after 60 seconds.
  * After this time will check broken urls of posts contents.

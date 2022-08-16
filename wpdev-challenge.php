@@ -80,8 +80,9 @@ if (!class_exists('wpdev_challenge')) {
 		function activate()
 		{
 
-			//Create table when activate plugin
-			create_broken_links_list_table_wpdb();
+			//Create table when activate plugin 
+
+			$this->create_broken_links_list_table_wpdb(); 
 
 			// make sure this event is not scheduled
 			if (!wp_next_scheduled('dcms_my_cron_hook')) {
@@ -94,8 +95,8 @@ if (!class_exists('wpdev_challenge')) {
 		function deactivate()
 		{
 			echo 'The plugin was deactivated.';
-			
-			wp_clear_scheduled_hook( 'dcms_my_cron_hook' );
+
+			wp_clear_scheduled_hook('dcms_my_cron_hook');
 		}
 
 
@@ -157,6 +158,33 @@ if (!class_exists('wpdev_challenge')) {
 		}
 
 
+		/**
+		 * Create custom Table when activate plugin
+		 *
+		 * @return void
+		 */
+
+		function create_broken_links_list_table_wpdb()
+		{
+			global $wpdb;
+			$table_name = $wpdb->prefix . 'wp_broken_links_list';
+			if ($wpdb->get_var("show tables like '" . $table_name . "'") != $table_name) {
+
+				$sql =
+					'CREATE TABLE `' . $table_name . '` (
+                `id` int(11) NOT NULL AUTO_INCREMENT,
+                `url` varchar(200) NOT NULL,
+                `status` varchar(50) NOT NULL, 
+                `origin` varchar(200) NOT NULL, 
+				`origin_post_id` int(11) NOT NULL, 
+                `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`)
+              ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;';
+
+				require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+				dbDelta($sql);
+			}
+		}
 	}
 
 	$wpdev_challenge = new wpdev_challenge();
@@ -166,6 +194,3 @@ register_activation_hook(__FILE__, array($wpdev_challenge, 'activate'));
 
 //Activation
 register_deactivation_hook(__FILE__, array($wpdev_challenge, 'deactivate'));
-
-
-
