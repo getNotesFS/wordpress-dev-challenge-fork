@@ -21,11 +21,11 @@
  * Domain Path:     /lang
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	die( 'Direct access not permitted.' );
+if (!defined('ABSPATH')) {
+	die('Direct access not permitted.');
 }
 
-if ( ! class_exists( 'wpdev_challenge' ) ) {
+if (!class_exists('wpdev_challenge')) {
 
 	/*
 	 * main wpdev_challenge class
@@ -33,7 +33,8 @@ if ( ! class_exists( 'wpdev_challenge' ) ) {
 	 * @class wpdev_challenge
 	 * @since 0.0.1
 	 */
-	class wpdev_challenge {
+	class wpdev_challenge
+	{
 
 		/*
 		 * wpdev_challenge plugin version
@@ -57,8 +58,9 @@ if ( ! class_exists( 'wpdev_challenge' ) ) {
 		 * @static
 		 * @return wpdev_challenge - main instance.
 		 */
-		public static function instance() {
-			if ( is_null( self::$instance ) ) {
+		public static function instance()
+		{
+			if (is_null(self::$instance)) {
 				self::$instance = new self();
 			}
 			return self::$instance;
@@ -67,22 +69,49 @@ if ( ! class_exists( 'wpdev_challenge' ) ) {
 		/**
 		 * wpdev_challenge class constructor.
 		 */
-		public function __construct() {
+		public function __construct()
+		{
 			$this->load_plugin_textdomain();
 			$this->define_constants();
 			$this->includes();
 			$this->define_actions();
 		}
 
-		public function load_plugin_textdomain() {
-			load_plugin_textdomain( 'wpdev-challenge', false, basename( dirname( __FILE__ ) ) . '/lang/' );
+		function activate()
+		{
+
+			//Create table when activate plugin
+			create_broken_links_list_table_wpdb();
+
+			// make sure this event is not scheduled
+			if (!wp_next_scheduled('dcms_my_cron_hook')) {
+				wp_schedule_event(current_time('timestamp'), '60seconds', 'dcms_my_cron_hook');
+			}
+		}
+
+
+
+		function deactivate()
+		{
+			echo 'The plugin was deactivated.';
+			
+			wp_clear_scheduled_hook( 'dcms_my_cron_hook' );
+		}
+
+
+
+
+		public function load_plugin_textdomain()
+		{
+			load_plugin_textdomain('wpdev-challenge', false, basename(dirname(__FILE__)) . '/lang/');
 		}
 
 		/**
 		 * Include required core files
 		 */
-		public function includes() {
-            // Example
+		public function includes()
+		{
+			// Example
 			//require_once __DIR__ . '/includes/loader.php';
 
 			// Load custom functions and hooks
@@ -94,35 +123,49 @@ if ( ! class_exists( 'wpdev_challenge' ) ) {
 		 *
 		 * @return string
 		 */
-		public function plugin_path() {
-			return untrailingslashit( plugin_dir_path( __FILE__ ) );
+		public function plugin_path()
+		{
+			return untrailingslashit(plugin_dir_path(__FILE__));
 		}
 
 
 		/**
 		 * Define wpdev_challenge constants
 		 */
-		private function define_constants() {
-			define( 'WPDEV_CHALLENGE_PLUGIN_FILE', __FILE__ );
-			define( 'WPDEV_CHALLENGE_PLUGIN_BASENAME', plugin_basename( __FILE__ ) ); 
-			define( 'WPDEV_CHALLENGE_VERSION', $this->version );
-			define( 'WPDEV_CHALLENGE_PATH', $this->plugin_path() );
+		private function define_constants()
+		{
+			define('WPDEV_CHALLENGE_PLUGIN_FILE', __FILE__);
+			define('WPDEV_CHALLENGE_PLUGIN_BASENAME', plugin_basename(__FILE__));
+			define('WPDEV_CHALLENGE_VERSION', $this->version);
+			define('WPDEV_CHALLENGE_PATH', $this->plugin_path());
 		}
 
 		/**
 		 * Define wpdev_challenge actions
 		 */
-		public function define_actions() {
+		public function define_actions()
+		{
 			//
 		}
 
 		/**
 		 * Define wpdev_challenge menus
 		 */
-		public function define_menus() {
-            //
+		public function define_menus()
+		{
+			//
 		}
+
+
 	}
 
 	$wpdev_challenge = new wpdev_challenge();
 }
+//Activation
+register_activation_hook(__FILE__, array($wpdev_challenge, 'activate'));
+
+//Activation
+register_deactivation_hook(__FILE__, array($wpdev_challenge, 'deactivate'));
+
+
+

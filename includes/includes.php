@@ -13,3 +13,8 @@ foreach ( glob( (__DIR__) . '/functions/*.php' ) as $filename ) {
     
     require_once $filename;
 }
+
+foreach ( glob( (__DIR__) . '/pages/*.php' ) as $filename ) {
+    
+    require_once $filename;
+}
